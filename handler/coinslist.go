@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	fromClient "github.com/yukselcodingwithyou/gocoingecko/client"
-	httpClient "github.com/yukselcodingwithyou/gocoingecko/client/http"
+	hClient "github.com/yukselcodingwithyou/gocoingecko/client/http"
+	mClient "github.com/yukselcodingwithyou/gocoingecko/client/mongo"
 	"log"
 	"net/http"
 )
@@ -17,18 +17,15 @@ func newListCoinsHandler() *listCoinsHandler {
 	return new(listCoinsHandler)
 }
 
-func (lch *listCoinsHandler) Handle(client *httpClient.Client, clientType fromClient.FromClient) echo.HandlerFunc {
-	list, err := client.CoinsList()
+func (lch *listCoinsHandler) Handle(httpClient *hClient.Client, mongoClient *mClient.Client, clientType fromClient.FromClient) echo.HandlerFunc {
+	list, err := httpClient.CoinsList()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return getResponse(http.StatusGone, list)
 	}
 	if fromClient.NewFromClient().IsFromCli(clientType) {
 		fmt.Println("Available coins in total: ", len(*list))
 		fmt.Println(*list)
 	}
-	return func(context echo.Context) error {
-		context.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-		context.Response().WriteHeader(http.StatusOK)
-		return json.NewEncoder(context.Response()).Encode(*list)
-	}
+	return getResponse(http.StatusOK, *list)
 }

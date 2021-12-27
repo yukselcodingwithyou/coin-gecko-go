@@ -3,7 +3,8 @@ package cli
 import (
 	"github.com/urfave/cli/v2"
 	fromClient "github.com/yukselcodingwithyou/gocoingecko/client"
-	"github.com/yukselcodingwithyou/gocoingecko/client/http"
+	hClient "github.com/yukselcodingwithyou/gocoingecko/client/http"
+	mClient "github.com/yukselcodingwithyou/gocoingecko/client/mongo"
 	"github.com/yukselcodingwithyou/gocoingecko/controller"
 	"github.com/yukselcodingwithyou/gocoingecko/handler"
 )
@@ -12,7 +13,7 @@ type Client struct {
 	Application *cli.App
 }
 
-func New(client *http.Client) *Client {
+func New(httpClient *hClient.Client, mongoClient *mClient.Client) *Client {
 	return &Client{
 		Application: &cli.App{
 			Name:  "Go Gecko Go",
@@ -23,7 +24,7 @@ func New(client *http.Client) *Client {
 					Aliases: []string{"s"},
 					Usage:   "starts echo server",
 					Action: func(c *cli.Context) error {
-						controller.New().Start(client)
+						controller.New().Start(httpClient)
 						return nil
 					},
 				},
@@ -32,7 +33,7 @@ func New(client *http.Client) *Client {
 					Aliases: []string{"p"},
 					Usage:   "ping gecko api",
 					Action: func(c *cli.Context) error {
-						handler.Get(fromClient.Ping).Handle(client, fromClient.CLI)
+						handler.Get(fromClient.Ping).Handle(httpClient, mongoClient, fromClient.CLI)
 						return nil
 					},
 				},
@@ -41,7 +42,7 @@ func New(client *http.Client) *Client {
 					Aliases: []string{"lc"},
 					Usage:   "list all available coins",
 					Action: func(c *cli.Context) error {
-						handler.Get(fromClient.ListCoins).Handle(client, fromClient.CLI)
+						handler.Get(fromClient.ListCoins).Handle(httpClient, mongoClient, fromClient.CLI)
 						return nil
 					},
 				},

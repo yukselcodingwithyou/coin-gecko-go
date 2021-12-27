@@ -4,7 +4,6 @@ import (
 	cliClient "github.com/yukselcodingwithyou/gocoingecko/client/cli"
 	httpClient "github.com/yukselcodingwithyou/gocoingecko/client/http"
 	mongoClient "github.com/yukselcodingwithyou/gocoingecko/client/mongo"
-	"github.com/yukselcodingwithyou/gocoingecko/controller"
 	"log"
 	"net/http"
 	"os"
@@ -23,7 +22,7 @@ func New() *Application {
 }
 
 func (a *Application) Start(uri string) {
-	//startMongoClient(uri)
+	startMongoClient(uri)
 	startHttpClient()
 	startCliClient()
 }
@@ -44,8 +43,4 @@ func startCliClient() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func startEchoServer() {
-	controller.New().Start(HttpClient)
 }
